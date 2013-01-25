@@ -36,17 +36,19 @@ class BMPEditor
 
     attr :file_name, true
     attr :pixels, true
-    attr :file_header
-    attr :map_header
     attr :width
     attr :height
     attr :bpp
+
+    FILE_HEADER = 'A2LSSL'
+    MAP_HEADER  = 'LLLSSLLLLLL'
 
     def initialize(file_name = nil, autoread = false)
         @file_name = file_name
         if autoread then read end
     end
 
+    # Нормализует указанную компоненту цвета
     def norm_colour(c)
         colour = c
         if(c < 0) then colour = 0 end
@@ -54,23 +56,24 @@ class BMPEditor
         colour
     end
 
+    # Читает заголовки файлов и массив пикселов
     def read
         io = File.open(file_name)
 
         # File header
         header, file_size, reverved1, reserved2, off_bits =
-            io.read(14).unpack('A2LSSL')
+            io.read(14).unpack(FILE_HEADER)
         @file_header = BmpFileHeader.new(header, file_size, reverved1, reserved2, off_bits)
 
         # Map header
         size, width, height, planes, bpp, compression,
         image_size, xppm, yppm, clr_used, clr_important =
-            io.read(40).unpack('LLLSSLLLLLL')
+            io.read(40).unpack(MAP_HEADER)
         @map_header = BmpMapHeader.new(size, width, height, planes, bpp, compression,
             image_size, xppm, yppm, clr_used, clr_important)
         @width, @height, @bpp = width, height, bpp
 
-        io.seek(file_header[:off_bits], IO::SEEK_SET)
+        io.seek(@file_header[:off_bits], IO::SEEK_SET)
         @pixels, line = [[]], 0
         # Количество байт для выравнивания
         alignment = width * 3 % 4
@@ -95,11 +98,15 @@ class BMPEditor
         @pixels.reverse!
     end
 
+    def colour_median(pixel)
+        return pixel.to_a.inject(:+) / 3
+    end
+
     # Преобразовывает изображение в оттенки серого
     def to_greyscale
-        @pixels.each_with_index { |line, i|
-            line.each_with_index { |pixel, j|
-                gr = pixel.to_a.inject(:+) / 3
+        @pixels.each_with_index { |l, i|
+            l.each_with_index { |p, j|
+                gr = colour_median p
                 @pixels[i][j] = PixelRGB.new(gr, gr, gr)
             }
         }
@@ -108,11 +115,12 @@ class BMPEditor
     # Преобразовывает изображение в сепию или типа того
     # depth - уровень сепии, обычно значения 20 хватает.
     def to_sepia(depth = 20)
-        @pixels.each_with_index { |line, i|
-            line.each_with_index { |pixel, j|
-                gr = (pixel.red + pixel.green + pixel.blue) / 3
-                r, g, b = gr + (depth * 2), gr + depth, gr
-                r, g, b = norm_colour(r), norm_colour(g), norm_colour(b)
+        @pixels.each_with_index { |l, i|
+            l.each_with_index { |p, j|
+                gr = colour_median p
+                r, g, b = norm_colour(gr + (depth * 2)),
+                    norm_colour(gr + depth),
+                    norm_colour(gr)
                 @pixels[i][j] = PixelRGB.new(r, g, b)
             }
         }
@@ -120,9 +128,9 @@ class BMPEditor
 
     # Преобразовывает изображение из RGB в BGR форму
     def to_bgr
-        @pixels.each_with_index { |line, i|
-            line.each_with_index { |pixel, j|
-                r, g, b = pixel.red, pixel.green, pixel.blue
+        @pixels.each_with_index { |l, i|
+            l.each_with_index { |p, j|
+                r, g, b = p.red, p.green, p.blue
                 @pixels[i][j] = PixelRGB.new(b, g, r)
             }
         }    
@@ -130,9 +138,9 @@ class BMPEditor
 
     # Инвертирует изображение
     def invert
-        @pixels.each_with_index { |line, i|
-            line.each_with_index { |pixel, j|
-                r, g, b = pixel.red, pixel.green, pixel.blue
+        @pixels.each_with_index { |l, i|
+            l.each_with_index { |p, j|
+                r, g, b = p.red, p.green, p.blue
                 @pixels[i][j] = PixelRGB.new(255 - r, 255 - g, 255 - b)
             }
         }
@@ -153,7 +161,7 @@ class BMPEditor
         2.times { rotate_clockwise }
     end
 
-    # Поворачивает изображение влево
+    # Поворачивает изображение против часовой стрелки
     def rotate_counterclockwise
         new_pixels = [[]]
         (0 ... width).each { |y|
@@ -170,7 +178,7 @@ class BMPEditor
         @width, @height = @height, @width
     end
 
-    # Поворачивает изображение влево
+    # Поворачивает изображение по часовой стрелке
     def rotate_clockwise
         new_pixels = [[]]
         (0 ... width).each { |y|
@@ -197,12 +205,12 @@ class BMPEditor
 
         # Заголовок файла
         io.write [fh.header, fh.file_size, fh.reserved1,
-            fh.reserved2, fh.off_bits].pack('A2LSSL')
+            fh.reserved2, fh.off_bits].pack(FILE_HEADER)
 
         # Заголовок изображения
         io.write [mh.size, mh.width, mh.height, mh.planes, 
             mh.bpp, mh.compression, mh.image_size, mh.xppm,
-            mh.yppm,mh.clr_used, mh.clr_important].pack('LLLSSLLLLLL')
+            mh.yppm,mh.clr_used, mh.clr_important].pack(MAP_HEADER)
 
         # Количество байт для выравнивания
         alignment = width * 3 % 4
