@@ -81,6 +81,8 @@ class BMPReader
         }
     end
 
+    private
+
     # Возвращает структуру с заголовкой файла
     def read_file_header
         f = File.open(file_name, 'r')

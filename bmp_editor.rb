@@ -13,6 +13,15 @@ class BMPEditor
         @reader = BMPReader.new file_name, true
     end
 
+    def to_greyscale_luma
+        @reader.pixels.each_with_index { |l, i|
+            l.each_with_index { |p, j|
+                y = 0.299 * p.red + 0.587 * p.green + 0.0114 * p.blue
+                @reader.pixels[i][j] = PixelRGB.new(y, y, y)
+            }
+        }
+    end
+
     # Преобразовывает изображение в оттенки серого
     def to_greyscale
         @reader.pixels.each_with_index { |l, i|
@@ -57,11 +66,12 @@ class BMPEditor
         }
     end
 
-    # Поворачивает изображение на 180 градусов
+    # Отражает изображение вертикально
     def flip_vertical
         @reader.pixels.reverse!
     end
 
+    # Отражает изображение горизонтально
     def flip_horizontal
         rotate_180
         flip_vertical
@@ -107,7 +117,7 @@ class BMPEditor
     end
 
     def save
-        @reader.write @file_name
+        @reader.write(@file_name)
     end
 
     def save_to(file)
@@ -123,7 +133,7 @@ class BMPEditor
         if(c > 255) then colour = 255 end
         colour
     end
-
+    
     def colour_median(pixel)
         return pixel.to_a.inject(:+) / 3
     end

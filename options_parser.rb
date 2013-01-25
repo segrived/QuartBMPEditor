@@ -5,7 +5,7 @@ require 'optparse'
 class Options
 
     # Доступные эффекты и варианты поворота изображения
-    ALLOWED_EFFECTS = %w[invert greyscale grayscale sepia bgr]
+    ALLOWED_EFFECTS = %w[invert greyscale greyscale_luma sepia bgr]
     ALLOWED_ROTATE_VAR = %w[clockwise counterclockwise 180 vertical horizontal]
 
     def self.get_all

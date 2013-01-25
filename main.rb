@@ -22,7 +22,8 @@ bmp = BMPEditor.new options[:input_file]
 options[:effects].each { |effect|
     case effect
         when "invert"         then bmp.invert
-        when /^gr[ea]yscale$/ then bmp.to_greyscale
+        when "greyscale"      then bmp.to_greyscale
+        when "greyscale_luma" then bmp.to_greyscale_luma
         when "sepia"          then bmp.to_sepia 30
         when "bgr"            then bmp.to_bgr
     end
@@ -39,4 +40,4 @@ if options[:rotate]
     end
 end
 
-bmp.save options[:output_file]
+bmp.save_to options[:output_file]
