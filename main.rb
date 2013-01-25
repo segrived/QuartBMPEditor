@@ -58,7 +58,7 @@ abort("Не указано имя выходного файла") unless options
 abort("Входной файл не найден") unless File.exist? options[:input_file]
 
 puts "Открытие и чтение изображения в файл"
-bmp = BMPEditor.new options[:input_file], true
+bmp = BMPEditor.new options[:input_file]
 options[:effects].each { |effect|
     puts "Применение эффекта %s" % [effect]
     case effect
@@ -84,4 +84,4 @@ if options[:rotate]
 end
 
 puts "Запись результатирующего изображения в файл"
-bmp.write options[:output_file]
+bmp.save options[:output_file]
