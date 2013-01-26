@@ -3,7 +3,6 @@
 require './bmp_reader'
 require './global'
 
-
 class BMPEditor
 
     attr :file_name, true
@@ -39,8 +38,7 @@ class BMPEditor
             l.each_with_index { |p, j|
                 gr = colour_median p
                 r, g, b = norm_colour(gr + (depth * 2)),
-                    norm_colour(gr + depth),
-                    norm_colour(gr)
+                    norm_colour(gr + depth), norm_colour(gr)
                 @reader.pixels[i][j] = PixelRGB.new(r, g, b)
             }
         }
@@ -116,10 +114,12 @@ class BMPEditor
         @reader.width, @reader.height = @reader.height, @reader.width
     end
 
+    # Сохранение в текущий файл
     def save
         @reader.write(@file_name)
     end
 
+    # Сохранение в указанный файл
     def save_to(file)
         @reader.write file
     end

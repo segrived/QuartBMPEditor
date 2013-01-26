@@ -34,11 +34,15 @@ class BMPReader
         f.seek(@file_header[:off_bits], IO::SEEK_SET)
 
         @pixels, line = [[]], 0
+
+        # Количество байт для выравнивания
+        alignment = (4 - (@width * 3 % 4)) % 4
+
         # Количество байт на пиксель
         bytes_per_pixel = bpp / 8
-        # Количество байт для выравнивания
-        alignment = @width * bytes_per_pixel % 4
-        bytes_per_line = bytes_per_pixel * width
+
+        bytes_per_line = bytes_per_pixel * @width
+
         # Чтение изображения по линиям
         while (buffer = f.read(bytes_per_line)) do
             @pixels[line] = Array.new
@@ -70,10 +74,10 @@ class BMPReader
             fh.reserved2, fh.off_bits].pack(FILE_HEADER_FORMAT)
 
         # Заголовок изображения
-        io.write @map_header.generate_header
+        io.write mh.generate_header
 
         # Количество байт для выравнивания
-        alignment = width * 3 % 4
+        alignment = (4 - (@width * 3 % 4)) % 4
 
         # Перед сохранением файла, порядок линий нужно инвертировать
         @pixels.reverse.each { |l|
@@ -103,6 +107,7 @@ class BMPReader
             else raise 'Неизвестный формат BMP-файла'
         end
         inst.read_header f
+        f.close
         inst
     end
 
