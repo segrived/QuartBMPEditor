@@ -4,6 +4,7 @@ require './global'
 require './bmp_map_header'
 require './pixel'
 
+# Класс BMP-парсера
 class BMPReader
 
     attr :map_header
