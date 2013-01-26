@@ -12,11 +12,12 @@ class BMPEditor
         @reader = BMPReader.new file_name, true
     end
 
+    # Преобразовывает изображение в оттенки серого, используя алгоритм Luma
     def effect_greyscale_luma
         @reader.pixels.each_with_index { |l, i|
             l.each_with_index { |p, j|
-                y = 0.299 * p.red + 0.587 * p.green + 0.0114 * p.blue
-                @reader.pixels[i][j] = PixelRGB.new(y, y, y)
+                y = 0.299 * p.r + 0.587 * p.g + 0.0114 * p.b
+                p.red = p.green = p.blue = y
             }
         }
     end
@@ -24,10 +25,7 @@ class BMPEditor
     # Преобразовывает изображение в оттенки серого
     def effect_greyscale
         @reader.pixels.each_with_index { |l, i|
-            l.each_with_index { |p, j|
-                gr = colour_median p
-                @reader.pixels[i][j] = PixelRGB.new(gr, gr, gr)
-            }
+            l.each_with_index { |p, j| p.median! }
         }
     end
 
@@ -36,10 +34,9 @@ class BMPEditor
     def effect_sepia(depth = 20)
         @reader.pixels.each_with_index { |l, i|
             l.each_with_index { |p, j|
-                gr = colour_median p
-                r, g, b = norm_colour(gr + (depth * 2)),
-                    norm_colour(gr + depth), norm_colour(gr)
-                @reader.pixels[i][j] = PixelRGB.new(r, g, b)
+                p.median!
+                p.red, p.green = p.red + depth * 2, p.green + depth
+                p.normalize!
             }
         }
     end
@@ -48,8 +45,7 @@ class BMPEditor
     def effect_bgr
         @reader.pixels.each_with_index { |l, i|
             l.each_with_index { |p, j|
-                r, g, b = p.red, p.green, p.blue
-                @reader.pixels[i][j] = PixelRGB.new(b, g, r)
+                p.red, p.green, p.blue = p.blue, p.green, p.red
             }
         }    
     end
@@ -57,10 +53,7 @@ class BMPEditor
     # Инвертирует изображение
     def effect_invert
         @reader.pixels.each_with_index { |l, i|
-            l.each_with_index { |p, j|
-                r, g, b = p.red, p.green, p.blue
-                @reader.pixels[i][j] = PixelRGB.new(255 - r, 255 - g, 255 - b)
-            }
+            l.each_with_index { |p, j| p.invert! }
         }
     end
 

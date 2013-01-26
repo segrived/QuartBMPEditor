@@ -3,8 +3,6 @@
 require './bmp_editor'
 require './options_parser'
 
-version = "1.00a4"
-
 STDOUT.sync = true
 
 # Массив с опциями программы

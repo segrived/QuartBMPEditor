@@ -1,3 +1,5 @@
+PROGRAM_VERSION = '1.00 Alpha 5'
+
 FILE_HEADER_FORMAT = 'A2LSSL'
 FILE_HEADER_LENGTH = 14
 
@@ -8,11 +10,4 @@ BmpFileHeader = Struct.new(
     :reserved1, # [06] Зарезервированные байты (1)
     :reserved2, # [08] Зарезервированные байты (2)
     :off_bits   # [10] Оффсет начала изображения
-)
-
-# Набор RGB-компонент
-PixelRGB = Struct.new(
-    :red,   # Красная компонента
-    :green, # Зелёная компонента
-    :blue   # Синяя компонента
 )

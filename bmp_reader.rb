@@ -2,6 +2,7 @@
 
 require './global'
 require './bmp_map_header'
+require './pixel'
 
 class BMPReader
 
