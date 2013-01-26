@@ -4,10 +4,6 @@ require 'optparse'
 
 class Options
 
-    # Доступные эффекты и варианты поворота изображения
-    ALLOWED_EFFECTS = %w[invert greyscale greyscale_luma sepia bgr]
-    ALLOWED_ROTATE_VAR = %w[clockwise counterclockwise 180 vertical horizontal]
-
     def self.get_all
         options = {}
         # Обработка переданных параметров командной строки
@@ -33,14 +29,17 @@ class Options
 
             # Список эффектов
             opts.on("-e", "--effects EFFECTS", "Список применяемых к изображению эффектов") do |e|
-                e.split(/,/).each { |en| options[:effects].push en if ALLOWED_EFFECTS.include? en }
-                # Удаление повторяющихся эффектов
-                options[:effects].uniq!
+                options[:effects] = e.split(/,/).uniq
             end
 
             # Поворот изображения
             opts.on("-r", "--rotate ROTATE", "Поворот изображения") do |r|
-                options[:rotate] = r if ALLOWED_ROTATE_VAR.include? r
+                options[:rotate] = r
+            end
+
+            # Зеркальное отражение изображения
+            opts.on("-f", "--flip FLIP", "Отражение изображения") do |f|
+                options[:flip] = f
             end
 
             # Справка о программе

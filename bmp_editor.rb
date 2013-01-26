@@ -13,7 +13,7 @@ class BMPEditor
         @reader = BMPReader.new file_name, true
     end
 
-    def to_greyscale_luma
+    def effect_greyscale_luma
         @reader.pixels.each_with_index { |l, i|
             l.each_with_index { |p, j|
                 y = 0.299 * p.red + 0.587 * p.green + 0.0114 * p.blue
@@ -23,7 +23,7 @@ class BMPEditor
     end
 
     # Преобразовывает изображение в оттенки серого
-    def to_greyscale
+    def effect_greyscale
         @reader.pixels.each_with_index { |l, i|
             l.each_with_index { |p, j|
                 gr = colour_median p
@@ -34,7 +34,7 @@ class BMPEditor
 
     # Преобразовывает изображение в сепию или типа того
     # depth - уровень сепии, обычно значения 20 хватает.
-    def to_sepia(depth = 20)
+    def effect_sepia(depth = 20)
         @reader.pixels.each_with_index { |l, i|
             l.each_with_index { |p, j|
                 gr = colour_median p
@@ -47,7 +47,7 @@ class BMPEditor
     end
 
     # Преобразовывает изображение из RGB в BGR форму
-    def to_bgr
+    def effect_bgr
         @reader.pixels.each_with_index { |l, i|
             l.each_with_index { |p, j|
                 r, g, b = p.red, p.green, p.blue
@@ -57,7 +57,7 @@ class BMPEditor
     end
 
     # Инвертирует изображение
-    def invert
+    def effect_invert
         @reader.pixels.each_with_index { |l, i|
             l.each_with_index { |p, j|
                 r, g, b = p.red, p.green, p.blue
@@ -85,7 +85,7 @@ class BMPEditor
     # Поворачивает изображение против часовой стрелки
     def rotate_counterclockwise
         new_pixels = [[]]
-        (0 ... width).each { |y|
+        (0 ... @reader.width).each { |y|
             new_pixels[y] = Array.new()
             (0 ... @reader.height).each { |x|
                 new_pixels[y][x] = @reader.pixels[x][y]
@@ -102,7 +102,7 @@ class BMPEditor
     # Поворачивает изображение по часовой стрелке
     def rotate_clockwise
         new_pixels = [[]]
-        (0 ... width).each { |y|
+        (0 ... @reader.width).each { |y|
             new_pixels[y] = Array.new()
             (0 ... @reader.height).each { |x|
                 new_pixels[y][x] = @reader.pixels[@reader.height - 1 - x][y]
@@ -110,9 +110,9 @@ class BMPEditor
         }
         # Заменяем существующий массив с набором пикселов
         @reader.pixels = new_pixels
-        # После поворота изображения нужно также поменять местами высоту и ширину 
-        @reader.map_header[:width] = @height
-        @reader.map_header[:height] = @width
+        # После поворота изображения нужно также поменять местами высоту и ширину
+        @reader.map_header[:width] = @reader.height
+        @reader.map_header[:height] = @reader.width
         @reader.width, @reader.height = @reader.height, @reader.width
     end
 
