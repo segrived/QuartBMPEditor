@@ -12,6 +12,7 @@ class Options
 
             # Обработка переданных параметров командной строки
             OptionParser.new do |opts|
+                # Массив со списком включенных эффектов
                 options[:effects] = Array.new
                 opts.banner = "Использование: bmp_reader.rb [опции]"
 
