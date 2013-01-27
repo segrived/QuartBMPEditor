@@ -16,6 +16,7 @@ class BMPEditor
     def effect_greyscale_luma
         @reader.pixels.each_with_index { |l, i|
             l.each_with_index { |p, j|
+                # Вычисление среднего значения по алгоритму Luma
                 y = 0.299 * p.r + 0.587 * p.g + 0.0114 * p.b
                 p.red = p.green = p.blue = y
             }
